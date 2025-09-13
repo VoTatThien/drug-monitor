@@ -21,6 +21,15 @@ connectMongo();
 //load the routes
 app.use('/',require('./server/routes/routes'));//Pulls the routes file whenever this is loaded
 
+// Handle 404
+app.use((req, res, next) => {
+    const err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
+
+// Error handler
+app.use(require('./server/middleware/errorHandler'));
 
 app.listen(PORT, function() {//specifies port to listen on
 	console.log('listening on '+ PORT);

@@ -54,13 +54,34 @@ if(window.location.pathname == "/manage"){//since items are listed on manage
 }
 
 if(window.location.pathname == "/purchase"){
-//$("#purchase_table").hide();
-
-$("#drug_days").submit(function(event){//on a submit event on the element with id add_drug
-    event.preventDefault();//prevent default submit behaviour
-    $("#purchase_table").show();
-    days = +$("#days").val();
-    alert("Drugs for " + days + " days!");//alert this in the browser
-})
-
+    $("#drug_days").submit(function(event){
+        event.preventDefault();
+        const days = parseInt($("#days").val());
+        
+        // Get all drugs
+        $.ajax({
+            url: `https://${url}/api/drugs`,
+            method: "GET"
+        }).done(function(drugs){
+            let tbody = $("#purchase_table tbody");
+            tbody.empty();
+            
+            // Update the table with new calculations
+            drugs.forEach((drug, index) => {
+                const pills = days * drug.perDay;
+                const cardsNeeded = Math.ceil(pills/drug.card);
+                const packsNeeded = Math.ceil(pills/drug.pack);
+                const cardsPerPack = drug.pack/drug.card;
+                
+                tbody.append(`
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${drug.name}</td>
+                        <td>${cardsNeeded} (${cardsPerPack} ${cardsPerPack < 2 ? 'card' : 'cards'} per pack)</td>
+                        <td>${packsNeeded}</td>
+                    </tr>
+                `);
+            });
+        });
+    });
 }
